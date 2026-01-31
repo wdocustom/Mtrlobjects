@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MRTL Objects — Objects for the Modern Void</title>
+  <meta name="description" content="MRTL Objects — Avant-garde design objects for architectural living.">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Fonts: Helvetica-adjacent sans-serif + monospace pairing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ============================================
+       HEADER — Sticky minimal bar
+       Logo left, ticker center, cart right
+       ============================================ -->
+  <header class="site-header" role="banner">
+    <a href="/" class="logo" aria-label="MRTL Objects Home">MRTL</a>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker__track">
+        <span>OBJECTS FOR THE MODERN VOID&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+        <span>DESIGNED WITHOUT COMPROMISE&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+        <span>FORM FOLLOWS NOTHING&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+        <span>OBJECTS FOR THE MODERN VOID&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+        <span>DESIGNED WITHOUT COMPROMISE&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+        <span>FORM FOLLOWS NOTHING&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
+    <button class="cart-btn" aria-label="Shopping cart, 0 items">
+      Cart (<span class="cart-count">0</span>)
+    </button>
+  </header>
+
+  <!-- ============================================
+       HERO — Full viewport statement piece
+       Large type + abstract shape placeholder
+       ============================================ -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero__content">
+      <h1 class="hero__title">
+        <span class="hero__line">Objects</span>
+        <span class="hero__line hero__line--indent">That Refuse</span>
+        <span class="hero__line">to Explain</span>
+        <span class="hero__line hero__line--indent">Themselves.</span>
+      </h1>
+      <p class="hero__sub">Collection 001 — Available Now</p>
+    </div>
+
+    <!-- Abstract geometric placeholder instead of 3D object -->
+    <div class="hero__shape" aria-hidden="true">
+      <div class="hero__shape-inner"></div>
+    </div>
+
+    <div class="hero__scroll-hint" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="hero__scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CATALOG — Asymmetric product grid
+       Offset images, hover distortion on names
+       ============================================ -->
+  <section class="catalog" id="catalog" aria-label="Product Catalog">
+    <header class="catalog__header">
+      <h2 class="catalog__title">Catalog</h2>
+      <span class="catalog__count mono">6 Objects</span>
+    </header>
+
+    <div class="catalog__grid">
+
+      <article class="product" data-product="1">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl1/600/800" alt="Monolith Vase 01" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">001</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Monolith Vase</h3>
+          <p class="product__details mono">Concrete — H 340mm</p>
+          <p class="product__price mono">€ 280.00</p>
+        </div>
+      </article>
+
+      <article class="product product--offset" data-product="2">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl2/600/800" alt="Void Tray" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">002</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Void Tray</h3>
+          <p class="product__details mono">Blackened Steel — 200×300mm</p>
+          <p class="product__price mono">€ 165.00</p>
+        </div>
+      </article>
+
+      <article class="product" data-product="3">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl3/600/800" alt="Column Candle Holder" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">003</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Column Candle Holder</h3>
+          <p class="product__details mono">Marble — H 220mm</p>
+          <p class="product__price mono">€ 195.00</p>
+        </div>
+      </article>
+
+      <article class="product product--offset" data-product="4">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl4/600/800" alt="Slab Bookend Set" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">004</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Slab Bookend Set</h3>
+          <p class="product__details mono">Cast Iron — 150×180mm</p>
+          <p class="product__price mono">€ 240.00</p>
+        </div>
+      </article>
+
+      <article class="product" data-product="5">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl5/600/800" alt="Ruin Bowl" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">005</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Ruin Bowl</h3>
+          <p class="product__details mono">Raw Ceramic — Ø 280mm</p>
+          <p class="product__price mono">€ 310.00</p>
+        </div>
+      </article>
+
+      <article class="product product--offset" data-product="6">
+        <div class="product__image-wrap">
+          <img src="https://picsum.photos/seed/mrtl6/600/800" alt="Grid Frame" class="product__image" loading="lazy" width="600" height="800">
+          <span class="product__index mono">006</span>
+        </div>
+        <div class="product__info">
+          <h3 class="product__name">Grid Frame</h3>
+          <p class="product__details mono">Aluminum — 400×500mm</p>
+          <p class="product__price mono">€ 175.00</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============================================
+       QUICK VIEW MODAL
+       Triggered by clicking a product
+       ============================================ -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Product Quick View" hidden>
+    <div class="modal__backdrop"></div>
+    <div class="modal__content">
+      <button class="modal__close" aria-label="Close quick view">&times;</button>
+      <div class="modal__grid">
+        <div class="modal__image-wrap">
+          <img src="" alt="" class="modal__image" id="modal-image">
+        </div>
+        <div class="modal__details">
+          <span class="modal__index mono" id="modal-index"></span>
+          <h2 class="modal__name" id="modal-name"></h2>
+          <p class="modal__spec mono" id="modal-spec"></p>
+          <p class="modal__price" id="modal-price"></p>
+          <p class="modal__description">Each piece is produced in limited runs. Minor surface variations are inherent to the material and considered part of the object's character.</p>
+          <button class="modal__add-btn">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       FOOTER — Massive 50vh typographic footer
+       ============================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer__top">
+      <p class="footer__tagline">Objects don't need<br>your permission.</p>
+    </div>
+    <nav class="footer__links" aria-label="Footer navigation">
+      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a>
+      <a href="mailto:studio@mrtlobjects.com" class="footer__link">Email</a>
+      <a href="#" class="footer__link">Terms</a>
+    </nav>
+    <div class="footer__bottom mono">
+      <span>&copy; MRTL Objects 2026</span>
+      <span>All rights reserved</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

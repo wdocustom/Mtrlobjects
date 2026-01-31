@@ -1,0 +1,645 @@
+/* ==============================================
+   MRTL OBJECTS — STYLE SYSTEM
+   Neo-Brutalist E-commerce Prototype
+
+   Design tokens are centralized as CSS custom
+   properties for rapid iteration.
+   ============================================== */
+
+/* --- DESIGN TOKENS --- */
+:root {
+  /* Palette: monochromatic with a single accent */
+  --c-bg:      #f4f4f4;
+  --c-surface: #e8e8e8;
+  --c-text:    #0a0a0a;
+  --c-muted:   #6b6b6b;
+  --c-accent:  #002fa7; /* International Klein Blue — used sparingly */
+  --c-white:   #ffffff;
+
+  /* Type scale — modular, aggressive */
+  --f-sans:  'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --f-mono:  'Courier Prime', 'Courier New', monospace;
+
+  --fs-hero:   clamp(3rem, 10vw, 9rem);
+  --fs-h2:     clamp(2rem, 5vw, 4.5rem);
+  --fs-h3:     clamp(1.1rem, 2vw, 1.5rem);
+  --fs-body:   clamp(0.85rem, 1vw, 1rem);
+  --fs-small:  clamp(0.7rem, 0.8vw, 0.8rem);
+  --fs-footer: clamp(2.5rem, 7vw, 6rem);
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-s:  1rem;
+  --space-m:  2rem;
+  --space-l:  4rem;
+  --space-xl: 8rem;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur:      0.5s;
+}
+
+
+/* --- RESET & BASE --- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--f-sans);
+  font-size: var(--fs-body);
+  color: var(--c-text);
+  background-color: var(--c-bg);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+/* ==============================================
+   HEADER
+   Fixed, minimal, three-column layout.
+   Border-bottom gives the "blueprint" feel.
+   ============================================== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  background: var(--c-bg);
+  border-bottom: 1px solid var(--c-text);
+  backdrop-filter: blur(4px);
+}
+
+.logo {
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.cart-btn {
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: var(--space-xs) var(--space-s);
+  border: 1px solid var(--c-text);
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.cart-btn:hover {
+  background: var(--c-text);
+  color: var(--c-bg);
+}
+
+/* --- Ticker tape --- */
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+}
+
+.ticker__track {
+  display: inline-flex;
+  animation: ticker 30s linear infinite;
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-muted);
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+
+/* ==============================================
+   HERO
+   Full viewport, layered typography over an
+   abstract CSS shape. Architectural whitespace.
+   ============================================== */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-m) var(--space-l);
+  overflow: hidden;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero__title {
+  font-size: var(--fs-hero);
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+}
+
+.hero__line {
+  display: block;
+}
+
+.hero__line--indent {
+  padding-left: clamp(2rem, 12vw, 14rem);
+}
+
+.hero__sub {
+  margin-top: var(--space-m);
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--c-muted);
+}
+
+/* Abstract geometric shape — pure CSS, no images needed */
+.hero__shape {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  transform: translateY(-50%);
+  width: clamp(200px, 30vw, 500px);
+  height: clamp(200px, 30vw, 500px);
+  z-index: 1;
+  opacity: 0.08;
+}
+
+.hero__shape-inner {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--c-text);
+  border-radius: 50%;
+  animation: shape-rotate 40s linear infinite;
+  position: relative;
+}
+
+.hero__shape-inner::before,
+.hero__shape-inner::after {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border: 1px solid var(--c-text);
+}
+
+.hero__shape-inner::before {
+  border-radius: 50%;
+  animation: shape-rotate 25s linear infinite reverse;
+}
+
+.hero__shape-inner::after {
+  /* Square nested inside circle */
+  transform: rotate(45deg);
+  animation: shape-rotate 35s linear infinite;
+}
+
+@keyframes shape-rotate {
+  to { transform: rotate(360deg); }
+}
+
+/* Scroll hint at bottom of hero */
+.hero__scroll-hint {
+  position: absolute;
+  bottom: var(--space-m);
+  left: var(--space-m);
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-muted);
+}
+
+.hero__scroll-line {
+  width: 60px;
+  height: 1px;
+  background: var(--c-muted);
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes scroll-pulse {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50%      { transform: scaleX(0.5); opacity: 0.4; }
+}
+
+
+/* ==============================================
+   CATALOG
+   Asymmetric 2-column grid. Every other item
+   is offset vertically to break the rhythm.
+   ============================================== */
+.catalog {
+  padding: var(--space-xl) var(--space-m);
+  border-top: 1px solid var(--c-text);
+}
+
+.catalog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: var(--space-m);
+  border-bottom: 1px solid var(--c-surface);
+  margin-bottom: var(--space-l);
+}
+
+.catalog__title {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.catalog__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-l) var(--space-m);
+}
+
+/* Offset pattern — every other product pushes down */
+.product--offset {
+  margin-top: var(--space-xl);
+}
+
+.product {
+  cursor: pointer;
+}
+
+.product__image-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-text);
+  background: var(--c-surface);
+}
+
+.product__image {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  filter: grayscale(100%);
+  transition: filter var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+/* Hover on product name triggers image distortion */
+.product:hover .product__image,
+.product:focus-within .product__image {
+  filter: grayscale(0%);
+  transform: scale(1.04);
+}
+
+.product__index {
+  position: absolute;
+  top: var(--space-s);
+  left: var(--space-s);
+  color: var(--c-muted);
+}
+
+.product__info {
+  padding-top: var(--space-s);
+}
+
+.product__name {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: color var(--dur) var(--ease-out);
+}
+
+.product:hover .product__name {
+  color: var(--c-accent);
+}
+
+.product__details {
+  color: var(--c-muted);
+  margin-top: 0.25rem;
+}
+
+.product__price {
+  margin-top: var(--space-xs);
+  font-family: var(--f-mono);
+  font-size: var(--fs-body);
+}
+
+
+/* ==============================================
+   MODAL — Quick View
+   Overlay with a two-column layout inside.
+   Enters via scale + opacity for a snappy feel.
+   ============================================== */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-m);
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  animation: fade-in 0.3s var(--ease-out);
+}
+
+.modal__content {
+  position: relative;
+  z-index: 1;
+  background: var(--c-bg);
+  border: 1px solid var(--c-text);
+  max-width: 960px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modal-enter 0.4s var(--ease-out);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-enter {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal__close {
+  position: absolute;
+  top: var(--space-s);
+  right: var(--space-s);
+  font-size: 1.8rem;
+  line-height: 1;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--dur) var(--ease-out);
+}
+
+.modal__close:hover {
+  color: var(--c-accent);
+}
+
+.modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.modal__image-wrap {
+  border-right: 1px solid var(--c-text);
+}
+
+.modal__image {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.modal__details {
+  padding: var(--space-l) var(--space-m);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-s);
+}
+
+.modal__index {
+  color: var(--c-muted);
+}
+
+.modal__name {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.modal__spec {
+  color: var(--c-muted);
+}
+
+.modal__price {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal__description {
+  color: var(--c-muted);
+  line-height: 1.6;
+  max-width: 40ch;
+}
+
+.modal__add-btn {
+  margin-top: var(--space-s);
+  align-self: flex-start;
+  padding: var(--space-s) var(--space-m);
+  background: var(--c-text);
+  color: var(--c-bg);
+  font-family: var(--f-mono);
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--c-text);
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.modal__add-btn:hover {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-white);
+}
+
+
+/* ==============================================
+   FOOTER
+   50vh massive typographic block. Giant links
+   stacked vertically. Blueprint border treatment.
+   ============================================== */
+.site-footer {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-xl) var(--space-m) var(--space-m);
+  border-top: 1px solid var(--c-text);
+}
+
+.footer__tagline {
+  font-size: var(--fs-footer);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+  padding: var(--space-l) 0;
+}
+
+.footer__link {
+  font-size: var(--fs-footer);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition: color var(--dur) var(--ease-out);
+  /* Underline on hover via border */
+  border-bottom: 3px solid transparent;
+}
+
+.footer__link:hover {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+}
+
+.footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  color: var(--c-muted);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--c-surface);
+}
+
+
+/* ==============================================
+   RESPONSIVE — Mobile first adjustments
+   Grid collapses to single column on smaller
+   viewports. Typography scales via clamp().
+   ============================================== */
+@media (max-width: 768px) {
+  .site-header {
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  .ticker {
+    display: none; /* Hide ticker on small screens for clarity */
+  }
+
+  .site-header {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+  }
+
+  .hero {
+    padding: calc(var(--space-xl) + 2rem) var(--space-s) var(--space-m);
+  }
+
+  .hero__shape {
+    right: -10%;
+    opacity: 0.05;
+  }
+
+  .catalog {
+    padding: var(--space-l) var(--space-s);
+  }
+
+  .catalog__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-l);
+  }
+
+  /* Remove offset on mobile — clean single column */
+  .product--offset {
+    margin-top: 0;
+  }
+
+  .modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal__image-wrap {
+    border-right: none;
+    border-bottom: 1px solid var(--c-text);
+  }
+
+  .modal__details {
+    padding: var(--space-m) var(--space-s);
+  }
+
+  .footer__links {
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .footer__bottom {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
