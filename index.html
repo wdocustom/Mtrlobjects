@@ -7,165 +7,286 @@
   <meta name="description" content="MRTL Objects — Avant-garde design objects for architectural living.">
   <link rel="stylesheet" href="style.css">
 
-  <!-- Fonts: Helvetica-adjacent sans-serif + monospace pairing -->
+  <!-- Fonts: Syne for bold display, Space Grotesk for body, Space Mono for technical -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+  <!-- Custom cursor (desktop only) -->
+  <div class="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__circle"></div>
+  </div>
+
+  <!-- Page loading overlay -->
+  <div class="loader" aria-hidden="true">
+    <div class="loader__text">
+      <span class="loader__word">MRTL</span>
+      <span class="loader__word">Objects</span>
+    </div>
+    <div class="loader__bar"></div>
+  </div>
+
   <!-- ============================================
-       HEADER — Sticky minimal bar
-       Logo left, ticker center, cart right
+       HEADER — Minimal fixed nav
+       Minh Pham style: ultra-thin, transparent
+       background, subtle presence
        ============================================ -->
   <header class="site-header" role="banner">
-    <a href="/" class="logo" aria-label="MRTL Objects Home">MRTL</a>
+    <a href="/" class="logo" aria-label="MRTL Objects Home">
+      <span class="logo__text">MRTL</span>
+      <span class="logo__dot"></span>
+    </a>
 
-    <div class="ticker" aria-hidden="true">
-      <div class="ticker__track">
-        <span>OBJECTS FOR THE MODERN VOID&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-        <span>DESIGNED WITHOUT COMPROMISE&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-        <span>FORM FOLLOWS NOTHING&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-        <span>OBJECTS FOR THE MODERN VOID&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-        <span>DESIGNED WITHOUT COMPROMISE&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-        <span>FORM FOLLOWS NOTHING&nbsp;&nbsp;&nbsp;—&nbsp;&nbsp;&nbsp;</span>
-      </div>
-    </div>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#work" class="nav__link">Objects</a>
+      <a href="#about" class="nav__link">About</a>
+      <a href="#contact" class="nav__link">Contact</a>
+    </nav>
 
     <button class="cart-btn" aria-label="Shopping cart, 0 items">
-      Cart (<span class="cart-count">0</span>)
+      Cart <span class="cart-count">0</span>
     </button>
   </header>
 
   <!-- ============================================
-       HERO — Full viewport statement piece
-       Large type + abstract shape placeholder
+       HERO — Full viewport, enormous typography
+       Minh Pham style: stacked oversized text
+       with a subtitle below, personality-driven
        ============================================ -->
   <section class="hero" aria-label="Hero">
     <div class="hero__content">
-      <h1 class="hero__title">
-        <span class="hero__line">Objects</span>
-        <span class="hero__line hero__line--indent">That Refuse</span>
-        <span class="hero__line">to Explain</span>
-        <span class="hero__line hero__line--indent">Themselves.</span>
-      </h1>
-      <p class="hero__sub">Collection 001 — Available Now</p>
+      <div class="hero__title-wrap">
+        <h1 class="hero__title">
+          <span class="hero__line" data-reveal>Objects for</span>
+          <span class="hero__line" data-reveal>the Modern</span>
+          <span class="hero__line hero__line--stroke" data-reveal>Void</span>
+        </h1>
+      </div>
+
+      <div class="hero__meta">
+        <p class="hero__desc" data-reveal>
+          A selectively curated collection of design objects<br>
+          with strong focus on producing high quality &amp;<br>
+          impactful physical experiences.
+        </p>
+        <div class="hero__scroll-indicator" data-reveal>
+          <div class="hero__scroll-line"></div>
+          <span class="hero__scroll-text">Scroll to explore</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Abstract geometric placeholder instead of 3D object -->
-    <div class="hero__shape" aria-hidden="true">
-      <div class="hero__shape-inner"></div>
-    </div>
-
-    <div class="hero__scroll-hint" aria-hidden="true">
-      <span>Scroll</span>
-      <div class="hero__scroll-line"></div>
+    <!-- Floating abstract shape -->
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero__ring"></div>
+      <div class="hero__ring hero__ring--2"></div>
+      <div class="hero__ring hero__ring--3"></div>
     </div>
   </section>
 
   <!-- ============================================
-       CATALOG — Asymmetric product grid
-       Offset images, hover distortion on names
+       MARQUEE — Infinite scroll text band
+       Minh Pham style: horizontal running text
+       separating sections
        ============================================ -->
-  <section class="catalog" id="catalog" aria-label="Product Catalog">
-    <header class="catalog__header">
-      <h2 class="catalog__title">Catalog</h2>
-      <span class="catalog__count mono">6 Objects</span>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span class="marquee__item">Concrete</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Steel</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Marble</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Ceramic</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Iron</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Aluminum</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Concrete</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Steel</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Marble</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Ceramic</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Iron</span>
+      <span class="marquee__sep">&bull;</span>
+      <span class="marquee__item">Aluminum</span>
+      <span class="marquee__sep">&bull;</span>
+    </div>
+  </div>
+
+  <!-- ============================================
+       WORK/CATALOG — Project list style
+       Minh Pham style: text-based list where
+       hovering a name reveals an image that
+       follows the cursor
+       ============================================ -->
+  <section class="work" id="work" aria-label="Product Catalog">
+    <header class="section-header">
+      <span class="section-header__label">Selected Objects</span>
+      <span class="section-header__count">6 Pieces</span>
     </header>
 
-    <div class="catalog__grid">
+    <!-- Hover image container (positioned by JS) -->
+    <div class="work__image-reveal" aria-hidden="true">
+      <img src="" alt="" class="work__image-reveal-img">
+    </div>
 
-      <article class="product" data-product="1">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl1/600/800" alt="Monolith Vase 01" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">001</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Monolith Vase</h3>
-          <p class="product__details mono">Concrete — H 340mm</p>
-          <p class="product__price mono">€ 280.00</p>
+    <div class="work__list">
+      <article class="work__item" data-product="1"
+               data-img="https://picsum.photos/seed/mrtl1/800/1000"
+               data-name="Monolith Vase"
+               data-spec="Concrete — H 340mm"
+               data-price="€ 280.00"
+               data-index="001">
+        <div class="work__item-inner">
+          <span class="work__item-index">001</span>
+          <h3 class="work__item-name">Monolith Vase</h3>
+          <span class="work__item-material">Concrete</span>
+          <span class="work__item-price">€ 280</span>
         </div>
       </article>
 
-      <article class="product product--offset" data-product="2">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl2/600/800" alt="Void Tray" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">002</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Void Tray</h3>
-          <p class="product__details mono">Blackened Steel — 200×300mm</p>
-          <p class="product__price mono">€ 165.00</p>
-        </div>
-      </article>
-
-      <article class="product" data-product="3">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl3/600/800" alt="Column Candle Holder" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">003</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Column Candle Holder</h3>
-          <p class="product__details mono">Marble — H 220mm</p>
-          <p class="product__price mono">€ 195.00</p>
+      <article class="work__item" data-product="2"
+               data-img="https://picsum.photos/seed/mrtl2/800/1000"
+               data-name="Void Tray"
+               data-spec="Blackened Steel — 200×300mm"
+               data-price="€ 165.00"
+               data-index="002">
+        <div class="work__item-inner">
+          <span class="work__item-index">002</span>
+          <h3 class="work__item-name">Void Tray</h3>
+          <span class="work__item-material">Blackened Steel</span>
+          <span class="work__item-price">€ 165</span>
         </div>
       </article>
 
-      <article class="product product--offset" data-product="4">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl4/600/800" alt="Slab Bookend Set" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">004</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Slab Bookend Set</h3>
-          <p class="product__details mono">Cast Iron — 150×180mm</p>
-          <p class="product__price mono">€ 240.00</p>
-        </div>
-      </article>
-
-      <article class="product" data-product="5">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl5/600/800" alt="Ruin Bowl" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">005</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Ruin Bowl</h3>
-          <p class="product__details mono">Raw Ceramic — Ø 280mm</p>
-          <p class="product__price mono">€ 310.00</p>
+      <article class="work__item" data-product="3"
+               data-img="https://picsum.photos/seed/mrtl3/800/1000"
+               data-name="Column Candle Holder"
+               data-spec="Marble — H 220mm"
+               data-price="€ 195.00"
+               data-index="003">
+        <div class="work__item-inner">
+          <span class="work__item-index">003</span>
+          <h3 class="work__item-name">Column Holder</h3>
+          <span class="work__item-material">Marble</span>
+          <span class="work__item-price">€ 195</span>
         </div>
       </article>
 
-      <article class="product product--offset" data-product="6">
-        <div class="product__image-wrap">
-          <img src="https://picsum.photos/seed/mrtl6/600/800" alt="Grid Frame" class="product__image" loading="lazy" width="600" height="800">
-          <span class="product__index mono">006</span>
-        </div>
-        <div class="product__info">
-          <h3 class="product__name">Grid Frame</h3>
-          <p class="product__details mono">Aluminum — 400×500mm</p>
-          <p class="product__price mono">€ 175.00</p>
+      <article class="work__item" data-product="4"
+               data-img="https://picsum.photos/seed/mrtl4/800/1000"
+               data-name="Slab Bookend Set"
+               data-spec="Cast Iron — 150×180mm"
+               data-price="€ 240.00"
+               data-index="004">
+        <div class="work__item-inner">
+          <span class="work__item-index">004</span>
+          <h3 class="work__item-name">Slab Bookends</h3>
+          <span class="work__item-material">Cast Iron</span>
+          <span class="work__item-price">€ 240</span>
         </div>
       </article>
 
+      <article class="work__item" data-product="5"
+               data-img="https://picsum.photos/seed/mrtl5/800/1000"
+               data-name="Ruin Bowl"
+               data-spec="Raw Ceramic — Ø 280mm"
+               data-price="€ 310.00"
+               data-index="005">
+        <div class="work__item-inner">
+          <span class="work__item-index">005</span>
+          <h3 class="work__item-name">Ruin Bowl</h3>
+          <span class="work__item-material">Raw Ceramic</span>
+          <span class="work__item-price">€ 310</span>
+        </div>
+      </article>
+
+      <article class="work__item" data-product="6"
+               data-img="https://picsum.photos/seed/mrtl6/800/1000"
+               data-name="Grid Frame"
+               data-spec="Aluminum — 400×500mm"
+               data-price="€ 175.00"
+               data-index="006">
+        <div class="work__item-inner">
+          <span class="work__item-index">006</span>
+          <h3 class="work__item-name">Grid Frame</h3>
+          <span class="work__item-material">Aluminum</span>
+          <span class="work__item-price">€ 175</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================
+       ABOUT — Big text statement section
+       Minh Pham style: large paragraph with
+       personality, scroll-revealed line by line
+       ============================================ -->
+  <section class="about" id="about" aria-label="About">
+    <div class="about__inner">
+      <span class="section-header__label" data-reveal>About the Studio</span>
+      <p class="about__text" data-reveal-lines>
+        We design objects that exist somewhere between architecture and sculpture. Each piece is an argument against the disposable. We use materials that age honestly — concrete that stains, steel that patinas, ceramic that chips. We believe imperfection is the only authentic luxury.
+      </p>
+      <div class="about__stats">
+        <div class="about__stat" data-reveal>
+          <span class="about__stat-number">6</span>
+          <span class="about__stat-label">Objects in Collection</span>
+        </div>
+        <div class="about__stat" data-reveal>
+          <span class="about__stat-number">∞</span>
+          <span class="about__stat-label">Material Variations</span>
+        </div>
+        <div class="about__stat" data-reveal>
+          <span class="about__stat-number">1</span>
+          <span class="about__stat-label">Singular Vision</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FEATURED — Large image + text section
+       Minh Pham style: full-width image with
+       parallax, overlaid or adjacent text
+       ============================================ -->
+  <section class="featured" aria-label="Featured">
+    <div class="featured__image-wrap">
+      <img src="https://picsum.photos/seed/mrtlfeat/1600/900" alt="Featured collection" class="featured__image" loading="lazy">
+    </div>
+    <div class="featured__content">
+      <h2 class="featured__title" data-reveal>Collection<br><em>001</em></h2>
+      <p class="featured__desc" data-reveal>Limited edition. Each object numbered. No restocks. When they're gone, they become memory.</p>
     </div>
   </section>
 
   <!-- ============================================
        QUICK VIEW MODAL
-       Triggered by clicking a product
        ============================================ -->
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Product Quick View" hidden>
     <div class="modal__backdrop"></div>
     <div class="modal__content">
-      <button class="modal__close" aria-label="Close quick view">&times;</button>
+      <button class="modal__close" aria-label="Close quick view">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/>
+        </svg>
+      </button>
       <div class="modal__grid">
         <div class="modal__image-wrap">
           <img src="" alt="" class="modal__image" id="modal-image">
         </div>
         <div class="modal__details">
-          <span class="modal__index mono" id="modal-index"></span>
+          <span class="modal__index" id="modal-index"></span>
           <h2 class="modal__name" id="modal-name"></h2>
-          <p class="modal__spec mono" id="modal-spec"></p>
+          <p class="modal__spec" id="modal-spec"></p>
           <p class="modal__price" id="modal-price"></p>
           <p class="modal__description">Each piece is produced in limited runs. Minor surface variations are inherent to the material and considered part of the object's character.</p>
           <button class="modal__add-btn">Add to Cart</button>
@@ -175,20 +296,25 @@
   </div>
 
   <!-- ============================================
-       FOOTER — Massive 50vh typographic footer
+       FOOTER — Full viewport, giant type
+       Minh Pham style: massive text, minimal
+       links, strong closing statement
        ============================================ -->
-  <footer class="site-footer" role="contentinfo">
-    <div class="footer__top">
-      <p class="footer__tagline">Objects don't need<br>your permission.</p>
+  <footer class="site-footer" id="contact" role="contentinfo">
+    <div class="footer__cta">
+      <h2 class="footer__title" data-reveal>Let's<br>work<br><em>together.</em></h2>
+      <a href="mailto:studio@mrtlobjects.com" class="footer__email" data-reveal>studio@mrtlobjects.com</a>
     </div>
-    <nav class="footer__links" aria-label="Footer navigation">
-      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a>
-      <a href="mailto:studio@mrtlobjects.com" class="footer__link">Email</a>
-      <a href="#" class="footer__link">Terms</a>
-    </nav>
-    <div class="footer__bottom mono">
-      <span>&copy; MRTL Objects 2026</span>
-      <span>All rights reserved</span>
+    <div class="footer__bottom">
+      <div class="footer__links">
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a>
+        <a href="#" class="footer__link">Twitter</a>
+        <a href="#" class="footer__link">Behance</a>
+      </div>
+      <div class="footer__credits">
+        <span>&copy; MRTL Objects 2026</span>
+        <span>All objects, all rights reserved</span>
+      </div>
     </div>
   </footer>
 
