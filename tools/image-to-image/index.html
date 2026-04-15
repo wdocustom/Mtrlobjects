@@ -1,9 +1,9 @@
 <!--
-  MRTL Render — Image-to-Image AI Tool
+  MTRL Render — Image-to-Image AI Tool
   =====================================
   Squarespace-ready embed. Paste this entire block into a
   Squarespace "Code Block" (Insert > Code). Everything is
-  scoped under .mrtl-render so it won't leak into or inherit
+  scoped under .mtrl-render so it won't leak into or inherit
   from your Squarespace theme styles.
 -->
 
@@ -18,7 +18,7 @@
      All custom properties live on the wrapper so
      they never collide with Squarespace :root vars.
      ============================================== */
-  .mrtl-render {
+  .mtrl-render {
     /* Palette */
     --mr-bg:           #0e0e10;
     --mr-surface:      #18181c;
@@ -46,9 +46,9 @@
      Only resets elements INSIDE the widget wrapper
      so Squarespace page styles stay intact.
      ============================================== */
-  .mrtl-render *,
-  .mrtl-render *::before,
-  .mrtl-render *::after {
+  .mtrl-render *,
+  .mtrl-render *::before,
+  .mtrl-render *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -57,7 +57,7 @@
   /* ==============================================
      WRAPPER / CONTAINER
      ============================================== */
-  .mrtl-render {
+  .mtrl-render {
     font-family: var(--mr-font-body);
     color: var(--mr-text);
     line-height: 1.6;
@@ -69,12 +69,12 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  .mrtl-render img {
+  .mtrl-render img {
     display: block;
     max-width: 100%;
   }
 
-  .mrtl-render button {
+  .mtrl-render button {
     cursor: pointer;
     font-family: inherit;
   }
@@ -549,7 +549,7 @@
      RESPONSIVE — stacks to single column
      ============================================== */
   @media (max-width: 720px) {
-    .mrtl-render {
+    .mtrl-render {
       padding: 1.5rem 1rem;
     }
 
@@ -570,11 +570,11 @@
      HTML — Drop this whole block into a
      Squarespace Code Block
      ============================================= -->
-<div class="mrtl-render">
+<div class="mtrl-render">
 
   <!-- Header -->
   <div class="mr-header">
-    <p class="mr-header__logo">MRTL Render</p>
+    <p class="mr-header__logo">MTRL Render</p>
     <h2 class="mr-header__title">Image-to-Image AI Tool</h2>
     <p class="mr-header__subtitle">Upload a reference sketch, choose a visual style, and let AI render a finished image.</p>
   </div>
@@ -697,7 +697,7 @@
     </div>
 
   </div><!-- /.mr-card -->
-</div><!-- /.mrtl-render -->
+</div><!-- /.mtrl-render -->
 
 <!-- =============================================
      JAVASCRIPT — runs inside a closure so nothing
@@ -846,7 +846,7 @@
     // with your real Worker URL. It will look like:
     //   https://mrtl-image-proxy.<you>.workers.dev
     // -----------------------------------------------
-    const WORKER_URL = 'https://mrtl-image-proxy.YOUR_SUBDOMAIN.workers.dev';
+    const WORKER_URL = 'https://mtrl-image-proxy.YOUR_SUBDOMAIN.workers.dev';
 
     // -----------------------------------------------
     // STYLE-SPECIFIC PROMPT ENGINEERING
@@ -973,7 +973,7 @@
       if (!src) return;
       const link = document.createElement('a');
       link.href = src;
-      link.download = `mrtl-render-${Date.now()}.png`;
+      link.download = `mtrl-render-${Date.now()}.png`;
       link.rel = 'noopener';
       document.body.appendChild(link);
       link.click();

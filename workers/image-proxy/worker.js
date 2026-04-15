@@ -1,5 +1,5 @@
 /**
- * MRTL Image Proxy — Cloudflare Worker
+ * MTRL Image Proxy — Cloudflare Worker
  * =====================================
  * Sits between the Squarespace widget and Stability AI.
  * Keeps the API key server-side (stored as a Cloudflare secret).
