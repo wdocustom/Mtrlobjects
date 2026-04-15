@@ -1,998 +1,968 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MRTL Render — Image-to-Image AI Tool</title>
-  <meta name="description" content="Upload a reference sketch, pick a visual style, and generate a rendered image with AI.">
-
-  <!-- Google Fonts: match the MRTL Objects brand -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- =============================================
-       EMBEDDED CSS
-       ============================================= -->
-  <style>
-    /* -----------------------------------------------
-       CSS CUSTOM PROPERTIES (Theming)
-       ----------------------------------------------- */
-    :root {
-      /* Palette */
-      --color-bg:          #0e0e10;
-      --color-surface:     #18181c;
-      --color-surface-alt: #222228;
-      --color-border:      #2e2e36;
-      --color-text:        #e8e8ec;
-      --color-text-muted:  #8a8a96;
-      --color-accent:      #7b61ff;
-      --color-accent-glow: rgba(123, 97, 255, .25);
-      --color-danger:      #ff6b6b;
-      --color-success:     #34d399;
-
-      /* Typography */
-      --font-body:  'Space Grotesk', system-ui, sans-serif;
-      --font-mono:  'Space Mono', ui-monospace, monospace;
-
-      /* Spacing & Radii */
-      --radius-sm:  8px;
-      --radius-md:  14px;
-      --radius-lg:  20px;
-      --shadow:     0 8px 32px rgba(0, 0, 0, .45);
-    }
-
-    /* -----------------------------------------------
-       RESET & BASE
-       ----------------------------------------------- */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: var(--font-body);
-      background: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    img { display: block; max-width: 100%; }
-    button { cursor: pointer; font-family: inherit; }
-
-    /* -----------------------------------------------
-       PAGE HEADER
-       ----------------------------------------------- */
-    .page-header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-      max-width: 560px;
-    }
-
-    .page-header__logo {
-      font-family: var(--font-mono);
-      font-size: .75rem;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--color-accent);
-      margin-bottom: .5rem;
-    }
-
-    .page-header__title {
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
-      font-weight: 700;
-      letter-spacing: -.02em;
-      line-height: 1.15;
-    }
-
-    .page-header__subtitle {
-      font-size: .95rem;
-      color: var(--color-text-muted);
-      margin-top: .5rem;
-    }
-
-    /* -----------------------------------------------
-       MAIN CARD LAYOUT
-       ----------------------------------------------- */
-    .app-card {
-      width: 100%;
-      max-width: 1080px;
-      background: var(--color-surface);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      overflow: hidden;
-    }
-
-    .app-card__section {
-      padding: 2rem;
-    }
-
-    .app-card__section--input {
-      border-right: 1px solid var(--color-border);
-    }
-
-    .section-label {
-      font-family: var(--font-mono);
-      font-size: .7rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      margin-bottom: 1.25rem;
-    }
-
-    /* -----------------------------------------------
-       UPLOAD / DROP ZONE
-       ----------------------------------------------- */
-    .upload-zone {
-      position: relative;
-      border: 2px dashed var(--color-border);
-      border-radius: var(--radius-md);
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: .6rem;
-      transition: border-color .2s, background .2s;
-      cursor: pointer;
-      overflow: hidden;
-    }
-
-    .upload-zone:hover,
-    .upload-zone--dragover {
-      border-color: var(--color-accent);
-      background: var(--color-accent-glow);
-    }
-
-    .upload-zone--has-image {
-      border-style: solid;
-      border-color: var(--color-border);
-      cursor: default;
-    }
-
-    .upload-zone--has-image:hover {
-      background: transparent;
-      border-color: var(--color-border);
-    }
-
-    .upload-zone__input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .upload-zone--has-image .upload-zone__input {
-      display: none;
-    }
-
-    .upload-zone__icon {
-      width: 48px;
-      height: 48px;
-      color: var(--color-text-muted);
-    }
-
-    .upload-zone__text {
-      font-size: .9rem;
-      color: var(--color-text-muted);
-      text-align: center;
-    }
-
-    .upload-zone__text strong {
-      color: var(--color-accent);
-    }
-
-    .upload-zone__hint {
-      font-size: .75rem;
-      color: var(--color-text-muted);
-      opacity: .7;
-    }
-
-    /* Preview state */
-    .upload-zone__preview {
-      display: none;
-      width: 100%;
-      flex-direction: column;
-      align-items: center;
-      gap: .75rem;
-      padding: .5rem;
-    }
-
-    .upload-zone--has-image .upload-zone__preview { display: flex; }
-    .upload-zone--has-image .upload-zone__placeholder { display: none; }
-
-    .upload-zone__preview-img {
-      max-height: 180px;
-      border-radius: var(--radius-sm);
-      object-fit: contain;
-    }
-
-    .upload-zone__remove-btn {
-      background: var(--color-surface-alt);
-      color: var(--color-text-muted);
-      border: 1px solid var(--color-border);
-      border-radius: 999px;
-      padding: .35rem 1rem;
-      font-size: .75rem;
-      transition: color .2s, border-color .2s;
-    }
-
-    .upload-zone__remove-btn:hover {
-      color: var(--color-danger);
-      border-color: var(--color-danger);
-    }
-
-    /* -----------------------------------------------
-       STYLE PRESETS
-       ----------------------------------------------- */
-    .style-presets {
-      margin-top: 1.5rem;
-    }
-
-    .style-presets__grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      list-style: none;
-    }
-
-    .style-preset {
-      position: relative;
-    }
-
-    /* Hide native radio */
-    .style-preset__radio {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .style-preset__label {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      padding: .5rem 1rem;
-      border-radius: 999px;
-      border: 1px solid var(--color-border);
-      background: var(--color-surface-alt);
-      font-size: .8rem;
-      color: var(--color-text-muted);
-      cursor: pointer;
-      transition: all .2s;
-      user-select: none;
-    }
-
-    .style-preset__label:hover {
-      border-color: var(--color-accent);
-      color: var(--color-text);
-    }
-
-    .style-preset__radio:checked + .style-preset__label {
-      background: var(--color-accent);
-      border-color: var(--color-accent);
-      color: #fff;
-      box-shadow: 0 0 14px var(--color-accent-glow);
-    }
-
-    .style-preset__radio:focus-visible + .style-preset__label {
-      outline: 2px solid var(--color-accent);
-      outline-offset: 2px;
-    }
-
-    .style-preset__icon {
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    /* Disabled state for presets while loading */
-    .style-preset__radio:disabled + .style-preset__label {
-      opacity: .4;
-      pointer-events: none;
-    }
-
-    /* -----------------------------------------------
-       PROMPT TEXTAREA
-       ----------------------------------------------- */
-    .prompt-field {
-      margin-top: 1.5rem;
-    }
-
-    .prompt-field__label {
-      display: block;
-      font-size: .8rem;
-      color: var(--color-text-muted);
-      margin-bottom: .4rem;
-    }
-
-    .prompt-field__textarea {
-      width: 100%;
-      min-height: 80px;
-      background: var(--color-surface-alt);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: .75rem;
-      font-family: var(--font-body);
-      font-size: .85rem;
-      color: var(--color-text);
-      resize: vertical;
-      transition: border-color .2s;
-    }
-
-    .prompt-field__textarea::placeholder {
-      color: var(--color-text-muted);
-      opacity: .6;
-    }
-
-    .prompt-field__textarea:focus {
-      outline: none;
-      border-color: var(--color-accent);
-    }
-
-    .prompt-field__textarea:disabled {
-      opacity: .4;
-    }
-
-    /* -----------------------------------------------
-       RENDER BUTTON
-       ----------------------------------------------- */
-    .render-btn {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: .9rem 1.4rem;
-      border: none;
-      border-radius: var(--radius-md);
-      background: var(--color-accent);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: .02em;
-      transition: transform .15s, box-shadow .2s, opacity .2s;
-      box-shadow: 0 4px 20px var(--color-accent-glow);
-    }
-
-    .render-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 28px var(--color-accent-glow);
-    }
-
-    .render-btn:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .render-btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    /* -----------------------------------------------
-       VALIDATION MESSAGE
-       ----------------------------------------------- */
-    .validation-msg {
-      margin-top: .75rem;
-      font-size: .8rem;
-      min-height: 1.2em;
-      color: var(--color-danger);
-      transition: opacity .2s;
-    }
-
-    /* -----------------------------------------------
-       RESULT AREA
-       ----------------------------------------------- */
-    .result-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      min-height: 420px;
-    }
-
-    .result-area__placeholder {
-      text-align: center;
-      color: var(--color-text-muted);
-      font-size: .85rem;
-    }
-
-    .result-area__placeholder-icon {
-      width: 56px;
-      height: 56px;
-      margin-bottom: .75rem;
-      opacity: .35;
-      color: var(--color-text-muted);
-    }
-
-    /* Loading spinner */
-    .result-area__loader {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .result-area__loader--active {
-      display: flex;
-    }
-
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 3px solid var(--color-border);
-      border-top-color: var(--color-accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .result-area__loader-text {
-      font-size: .85rem;
-      color: var(--color-text-muted);
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%      { opacity: .4; }
-    }
-
-    /* Generated image */
-    .result-area__image-wrap {
-      display: none;
-      width: 100%;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .result-area__image-wrap--visible {
-      display: flex;
-    }
-
-    .result-area__image {
-      width: 100%;
-      max-height: 380px;
-      object-fit: contain;
-      border-radius: var(--radius-md);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, .4);
-    }
-
-    .result-area__meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      font-size: .75rem;
-      color: var(--color-text-muted);
-      font-family: var(--font-mono);
-    }
-
-    .result-area__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      padding: .25rem .7rem;
-      border-radius: 999px;
-      background: rgba(52, 211, 153, .12);
-      color: var(--color-success);
-      font-size: .7rem;
-    }
-
-    .result-area__download-btn {
-      padding: .45rem 1rem;
-      border: 1px solid var(--color-border);
-      border-radius: 999px;
-      background: transparent;
-      color: var(--color-text-muted);
-      font-size: .75rem;
-      font-family: var(--font-mono);
-      transition: border-color .2s, color .2s;
-    }
-
-    .result-area__download-btn:hover {
-      border-color: var(--color-accent);
-      color: var(--color-accent);
-    }
-
-    /* Error state */
-    .result-area__error {
-      display: none;
-      text-align: center;
-      color: var(--color-danger);
-      font-size: .85rem;
-      padding: 1rem;
-    }
-
-    .result-area__error--visible {
-      display: block;
-    }
-
-    /* -----------------------------------------------
-       RESPONSIVE
-       ----------------------------------------------- */
-    @media (max-width: 720px) {
-      .app-card {
-        grid-template-columns: 1fr;
-      }
-
-      .app-card__section--input {
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
-      }
-
-      .result-area { min-height: 300px; }
-    }
-
-    /* -----------------------------------------------
-       BACK LINK
-       ----------------------------------------------- */
-    .back-link {
-      position: fixed;
-      top: 1.25rem;
-      left: 1.25rem;
-      font-family: var(--font-mono);
-      font-size: .7rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      text-decoration: none;
-      transition: color .2s;
-    }
-
-    .back-link:hover { color: var(--color-accent); }
-  </style>
-</head>
-<body>
-
-  <!-- Back link to main site -->
-  <a href="../../index.html" class="back-link" aria-label="Back to MRTL Objects">&larr; MRTL Objects</a>
-
-  <!-- =============================================
-       PAGE HEADER
-       ============================================= -->
-  <header class="page-header">
-    <p class="page-header__logo">MRTL Render</p>
-    <h1 class="page-header__title">Image-to-Image AI Tool</h1>
-    <p class="page-header__subtitle">Upload a reference sketch, choose a visual style, and let AI render a finished image.</p>
-  </header>
-
-  <!-- =============================================
-       MAIN WIDGET CARD
-       ============================================= -->
-  <main class="app-card" role="main">
-
-    <!-- ——— INPUT AREA (Left / Top) ——— -->
-    <section class="app-card__section app-card__section--input" aria-label="Input controls">
-      <p class="section-label">01 &mdash; Input</p>
-
-      <!-- Upload / Drop Zone -->
-      <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload an image by clicking or dragging a file here">
-        <!-- Hidden file input -->
+<!--
+  MRTL Render — Image-to-Image AI Tool
+  =====================================
+  Squarespace-ready embed. Paste this entire block into a
+  Squarespace "Code Block" (Insert > Code). Everything is
+  scoped under .mrtl-render so it won't leak into or inherit
+  from your Squarespace theme styles.
+-->
+
+<style>
+  /* ==============================================
+     FONT IMPORT (inline — no <link> tags needed)
+     ============================================== */
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  /* ==============================================
+     SCOPED CSS VARIABLES
+     All custom properties live on the wrapper so
+     they never collide with Squarespace :root vars.
+     ============================================== */
+  .mrtl-render {
+    /* Palette */
+    --mr-bg:           #0e0e10;
+    --mr-surface:      #18181c;
+    --mr-surface-alt:  #222228;
+    --mr-border:       #2e2e36;
+    --mr-text:         #e8e8ec;
+    --mr-text-muted:   #8a8a96;
+    --mr-accent:       #7b61ff;
+    --mr-accent-glow:  rgba(123, 97, 255, .25);
+    --mr-danger:       #ff6b6b;
+    --mr-success:      #34d399;
+
+    /* Typography */
+    --mr-font-body:    'Space Grotesk', system-ui, sans-serif;
+    --mr-font-mono:    'Space Mono', ui-monospace, monospace;
+
+    /* Radii */
+    --mr-radius-sm:    8px;
+    --mr-radius-md:    14px;
+    --mr-radius-lg:    20px;
+  }
+
+  /* ==============================================
+     SCOPED RESET
+     Only resets elements INSIDE the widget wrapper
+     so Squarespace page styles stay intact.
+     ============================================== */
+  .mrtl-render *,
+  .mrtl-render *::before,
+  .mrtl-render *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ==============================================
+     WRAPPER / CONTAINER
+     ============================================== */
+  .mrtl-render {
+    font-family: var(--mr-font-body);
+    color: var(--mr-text);
+    line-height: 1.6;
+    background: var(--mr-bg);
+    border-radius: var(--mr-radius-lg);
+    padding: 2.5rem 1.5rem;
+    max-width: 1120px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mrtl-render img {
+    display: block;
+    max-width: 100%;
+  }
+
+  .mrtl-render button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ==============================================
+     PAGE HEADER
+     ============================================== */
+  .mr-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mr-header__logo {
+    font-family: var(--mr-font-mono);
+    font-size: .75rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--mr-accent);
+    margin-bottom: .5rem;
+  }
+
+  .mr-header__title {
+    font-family: var(--mr-font-body);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    color: var(--mr-text);
+  }
+
+  .mr-header__subtitle {
+    font-family: var(--mr-font-body);
+    font-size: .95rem;
+    color: var(--mr-text-muted);
+    margin-top: .5rem;
+    font-weight: 400;
+  }
+
+  /* ==============================================
+     MAIN CARD (two-column grid)
+     ============================================== */
+  .mr-card {
+    background: var(--mr-surface);
+    border-radius: var(--mr-radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .45);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+
+  .mr-card__section {
+    padding: 2rem;
+  }
+
+  .mr-card__section--input {
+    border-right: 1px solid var(--mr-border);
+  }
+
+  .mr-section-label {
+    font-family: var(--mr-font-mono);
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--mr-text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ==============================================
+     UPLOAD / DROP ZONE
+     ============================================== */
+  .mr-upload {
+    position: relative;
+    border: 2px dashed var(--mr-border);
+    border-radius: var(--mr-radius-md);
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    transition: border-color .2s, background .2s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .mr-upload:hover,
+  .mr-upload--dragover {
+    border-color: var(--mr-accent);
+    background: var(--mr-accent-glow);
+  }
+
+  .mr-upload--has-image {
+    border-style: solid;
+    border-color: var(--mr-border);
+    cursor: default;
+  }
+
+  .mr-upload--has-image:hover {
+    background: transparent;
+    border-color: var(--mr-border);
+  }
+
+  /* Native file input covers the entire zone */
+  .mr-upload__input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0;
+  }
+
+  .mr-upload--has-image .mr-upload__input {
+    display: none;
+  }
+
+  .mr-upload__icon {
+    width: 48px;
+    height: 48px;
+    color: var(--mr-text-muted);
+  }
+
+  .mr-upload__text {
+    font-size: .9rem;
+    color: var(--mr-text-muted);
+    text-align: center;
+  }
+
+  .mr-upload__text strong {
+    color: var(--mr-accent);
+  }
+
+  .mr-upload__hint {
+    font-size: .75rem;
+    color: var(--mr-text-muted);
+    opacity: .7;
+  }
+
+  /* Preview (shown after file is selected) */
+  .mr-upload__preview {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem;
+  }
+
+  .mr-upload--has-image .mr-upload__preview { display: flex; }
+  .mr-upload--has-image .mr-upload__placeholder { display: none; }
+
+  .mr-upload__preview-img {
+    max-height: 180px;
+    border-radius: var(--mr-radius-sm);
+    object-fit: contain;
+  }
+
+  .mr-upload__remove-btn {
+    background: var(--mr-surface-alt);
+    color: var(--mr-text-muted);
+    border: 1px solid var(--mr-border);
+    border-radius: 999px;
+    padding: .35rem 1rem;
+    font-size: .75rem;
+    font-family: var(--mr-font-body);
+    transition: color .2s, border-color .2s;
+  }
+
+  .mr-upload__remove-btn:hover {
+    color: var(--mr-danger);
+    border-color: var(--mr-danger);
+  }
+
+  /* ==============================================
+     STYLE PRESETS
+     ============================================== */
+  .mr-styles {
+    margin-top: 1.5rem;
+    border: none;
+  }
+
+  .mr-styles__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    list-style: none;
+  }
+
+  .mr-style {
+    position: relative;
+    list-style: none;
+  }
+
+  /* Hide native radio */
+  .mr-style__radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .mr-style__label {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--mr-border);
+    background: var(--mr-surface-alt);
+    font-size: .8rem;
+    font-family: var(--mr-font-body);
+    color: var(--mr-text-muted);
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+    text-decoration: none;
+  }
+
+  .mr-style__label:hover {
+    border-color: var(--mr-accent);
+    color: var(--mr-text);
+  }
+
+  .mr-style__radio:checked + .mr-style__label {
+    background: var(--mr-accent);
+    border-color: var(--mr-accent);
+    color: #fff;
+    box-shadow: 0 0 14px var(--mr-accent-glow);
+  }
+
+  .mr-style__radio:focus-visible + .mr-style__label {
+    outline: 2px solid var(--mr-accent);
+    outline-offset: 2px;
+  }
+
+  .mr-style__radio:disabled + .mr-style__label {
+    opacity: .4;
+    pointer-events: none;
+  }
+
+  .mr-style__icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  /* ==============================================
+     PROMPT TEXTAREA
+     ============================================== */
+  .mr-prompt {
+    margin-top: 1.5rem;
+  }
+
+  .mr-prompt__label {
+    display: block;
+    font-size: .8rem;
+    color: var(--mr-text-muted);
+    margin-bottom: .4rem;
+    font-family: var(--mr-font-body);
+  }
+
+  .mr-prompt__textarea {
+    width: 100%;
+    min-height: 80px;
+    background: var(--mr-surface-alt);
+    border: 1px solid var(--mr-border);
+    border-radius: var(--mr-radius-sm);
+    padding: .75rem;
+    font-family: var(--mr-font-body);
+    font-size: .85rem;
+    color: var(--mr-text);
+    resize: vertical;
+    transition: border-color .2s;
+  }
+
+  .mr-prompt__textarea::placeholder {
+    color: var(--mr-text-muted);
+    opacity: .6;
+  }
+
+  .mr-prompt__textarea:focus {
+    outline: none;
+    border-color: var(--mr-accent);
+  }
+
+  .mr-prompt__textarea:disabled {
+    opacity: .4;
+  }
+
+  /* ==============================================
+     RENDER BUTTON
+     ============================================== */
+  .mr-render-btn {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: .9rem 1.4rem;
+    border: none;
+    border-radius: var(--mr-radius-md);
+    background: var(--mr-accent);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--mr-font-body);
+    letter-spacing: .02em;
+    transition: transform .15s, box-shadow .2s, opacity .2s;
+    box-shadow: 0 4px 20px var(--mr-accent-glow);
+    text-decoration: none;
+  }
+
+  .mr-render-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px var(--mr-accent-glow);
+    color: #fff;
+  }
+
+  .mr-render-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .mr-render-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+
+  /* ==============================================
+     VALIDATION MESSAGE
+     ============================================== */
+  .mr-validation {
+    margin-top: .75rem;
+    font-size: .8rem;
+    min-height: 1.2em;
+    color: var(--mr-danger);
+    font-family: var(--mr-font-body);
+  }
+
+  /* ==============================================
+     RESULT AREA
+     ============================================== */
+  .mr-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 420px;
+  }
+
+  .mr-result__placeholder {
+    text-align: center;
+    color: var(--mr-text-muted);
+    font-size: .85rem;
+  }
+
+  .mr-result__placeholder-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto .75rem auto;
+    opacity: .35;
+    color: var(--mr-text-muted);
+  }
+
+  /* Loading spinner */
+  .mr-result__loader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mr-result__loader--active {
+    display: flex;
+  }
+
+  .mr-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--mr-border);
+    border-top-color: var(--mr-accent);
+    border-radius: 50%;
+    animation: mrSpin .8s linear infinite;
+  }
+
+  @keyframes mrSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .mr-result__loader-text {
+    font-size: .85rem;
+    color: var(--mr-text-muted);
+    animation: mrPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes mrPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .4; }
+  }
+
+  /* Generated image */
+  .mr-result__image-wrap {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mr-result__image-wrap--visible {
+    display: flex;
+  }
+
+  .mr-result__image {
+    width: 100%;
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: var(--mr-radius-md);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, .4);
+  }
+
+  .mr-result__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    font-size: .75rem;
+    color: var(--mr-text-muted);
+    font-family: var(--mr-font-mono);
+  }
+
+  .mr-result__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .25rem .7rem;
+    border-radius: 999px;
+    background: rgba(52, 211, 153, .12);
+    color: var(--mr-success);
+    font-size: .7rem;
+  }
+
+  .mr-result__download-btn {
+    padding: .45rem 1rem;
+    border: 1px solid var(--mr-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mr-text-muted);
+    font-size: .75rem;
+    font-family: var(--mr-font-mono);
+    transition: border-color .2s, color .2s;
+    text-decoration: none;
+  }
+
+  .mr-result__download-btn:hover {
+    border-color: var(--mr-accent);
+    color: var(--mr-accent);
+  }
+
+  /* Error state */
+  .mr-result__error {
+    display: none;
+    text-align: center;
+    color: var(--mr-danger);
+    font-size: .85rem;
+    padding: 1rem;
+  }
+
+  .mr-result__error--visible {
+    display: block;
+  }
+
+  /* ==============================================
+     RESPONSIVE — stacks to single column
+     ============================================== */
+  @media (max-width: 720px) {
+    .mrtl-render {
+      padding: 1.5rem 1rem;
+    }
+
+    .mr-card {
+      grid-template-columns: 1fr;
+    }
+
+    .mr-card__section--input {
+      border-right: none;
+      border-bottom: 1px solid var(--mr-border);
+    }
+
+    .mr-result { min-height: 300px; }
+  }
+</style>
+
+<!-- =============================================
+     HTML — Drop this whole block into a
+     Squarespace Code Block
+     ============================================= -->
+<div class="mrtl-render">
+
+  <!-- Header -->
+  <div class="mr-header">
+    <p class="mr-header__logo">MRTL Render</p>
+    <h2 class="mr-header__title">Image-to-Image AI Tool</h2>
+    <p class="mr-header__subtitle">Upload a reference sketch, choose a visual style, and let AI render a finished image.</p>
+  </div>
+
+  <!-- Two-column card -->
+  <div class="mr-card">
+
+    <!-- ——— INPUT AREA ——— -->
+    <div class="mr-card__section mr-card__section--input" aria-label="Input controls">
+      <p class="mr-section-label">01 &mdash; Input</p>
+
+      <!-- Upload Zone -->
+      <div class="mr-upload" id="mr-upload-zone" role="button" tabindex="0" aria-label="Upload an image by clicking or dragging a file here">
         <input
           type="file"
           accept="image/*"
-          class="upload-zone__input"
-          id="file-input"
+          class="mr-upload__input"
+          id="mr-file-input"
           aria-label="Choose image file"
         >
 
-        <!-- Placeholder (shown when no file is selected) -->
-        <div class="upload-zone__placeholder">
-          <svg class="upload-zone__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <div class="mr-upload__placeholder">
+          <svg class="mr-upload__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="6" y="6" width="36" height="36" rx="4"/>
             <path d="M6 34l10-10 8 8 6-6 12 12"/>
             <circle cx="18" cy="18" r="3"/>
           </svg>
-          <p class="upload-zone__text">Drag &amp; drop or <strong>browse</strong></p>
-          <p class="upload-zone__hint">PNG, JPG, or WebP &mdash; max 10 MB</p>
+          <p class="mr-upload__text">Drag &amp; drop or <strong>browse</strong></p>
+          <p class="mr-upload__hint">PNG, JPG, or WebP &mdash; max 10 MB</p>
         </div>
 
-        <!-- Preview (shown after file is selected) -->
-        <div class="upload-zone__preview">
-          <img src="" alt="Uploaded preview" class="upload-zone__preview-img" id="preview-img">
-          <button type="button" class="upload-zone__remove-btn" id="remove-btn" aria-label="Remove uploaded image">Remove image</button>
+        <div class="mr-upload__preview">
+          <img src="" alt="Uploaded preview" class="mr-upload__preview-img" id="mr-preview-img">
+          <button type="button" class="mr-upload__remove-btn" id="mr-remove-btn" aria-label="Remove uploaded image">Remove image</button>
         </div>
       </div>
 
       <!-- Style Presets -->
-      <fieldset class="style-presets" aria-label="Render style presets">
-        <legend class="section-label" style="border:0;padding:0;">02 &mdash; Style</legend>
-        <ul class="style-presets__grid" role="radiogroup">
-          <li class="style-preset">
-            <input class="style-preset__radio" type="radio" name="style" id="style-photoreal" value="Photorealistic">
-            <label class="style-preset__label" for="style-photoreal">
-              <span class="style-preset__icon" aria-hidden="true">&#x1f4f7;</span> Photoreal
+      <fieldset class="mr-styles" aria-label="Render style presets">
+        <legend class="mr-section-label">02 &mdash; Style</legend>
+        <ul class="mr-styles__grid" role="radiogroup">
+          <li class="mr-style">
+            <input class="mr-style__radio" type="radio" name="mr-style" id="mr-style-photoreal" value="Photorealistic">
+            <label class="mr-style__label" for="mr-style-photoreal">
+              <span class="mr-style__icon" aria-hidden="true">&#x1f4f7;</span> Photoreal
             </label>
           </li>
-          <li class="style-preset">
-            <input class="style-preset__radio" type="radio" name="style" id="style-concept" value="Concept Art">
-            <label class="style-preset__label" for="style-concept">
-              <span class="style-preset__icon" aria-hidden="true">&#x1f3a8;</span> Concept Art
+          <li class="mr-style">
+            <input class="mr-style__radio" type="radio" name="mr-style" id="mr-style-concept" value="Concept Art">
+            <label class="mr-style__label" for="mr-style-concept">
+              <span class="mr-style__icon" aria-hidden="true">&#x1f3a8;</span> Concept Art
             </label>
           </li>
-          <li class="style-preset">
-            <input class="style-preset__radio" type="radio" name="style" id="style-lineart" value="Line Art">
-            <label class="style-preset__label" for="style-lineart">
-              <span class="style-preset__icon" aria-hidden="true">&#x270f;&#xfe0f;</span> Line Art
+          <li class="mr-style">
+            <input class="mr-style__radio" type="radio" name="mr-style" id="mr-style-lineart" value="Line Art">
+            <label class="mr-style__label" for="mr-style-lineart">
+              <span class="mr-style__icon" aria-hidden="true">&#x270f;&#xfe0f;</span> Line Art
             </label>
           </li>
-          <li class="style-preset">
-            <input class="style-preset__radio" type="radio" name="style" id="style-3d" value="3D Render">
-            <label class="style-preset__label" for="style-3d">
-              <span class="style-preset__icon" aria-hidden="true">&#x1f4a0;</span> 3D Render
+          <li class="mr-style">
+            <input class="mr-style__radio" type="radio" name="mr-style" id="mr-style-3d" value="3D Render">
+            <label class="mr-style__label" for="mr-style-3d">
+              <span class="mr-style__icon" aria-hidden="true">&#x1f4a0;</span> 3D Render
             </label>
           </li>
         </ul>
       </fieldset>
 
       <!-- Prompt -->
-      <div class="prompt-field">
-        <label class="prompt-field__label" for="prompt-input">03 &mdash; Additional Instructions <span style="opacity:.5;">(optional)</span></label>
+      <div class="mr-prompt">
+        <label class="mr-prompt__label" for="mr-prompt-input">03 &mdash; Additional Instructions <span style="opacity:.5;">(optional)</span></label>
         <textarea
-          class="prompt-field__textarea"
-          id="prompt-input"
+          class="mr-prompt__textarea"
+          id="mr-prompt-input"
           placeholder="e.g. &quot;Make it look cyberpunk with neon accents&quot;"
           maxlength="500"
         ></textarea>
       </div>
 
       <!-- Render Button -->
-      <button type="button" class="render-btn" id="render-btn">Render it!</button>
+      <button type="button" class="mr-render-btn" id="mr-render-btn">Render it!</button>
 
-      <!-- Validation message -->
-      <p class="validation-msg" id="validation-msg" role="alert" aria-live="polite"></p>
-    </section>
+      <!-- Validation -->
+      <p class="mr-validation" id="mr-validation" role="alert" aria-live="polite"></p>
+    </div>
 
-    <!-- ——— RESULT AREA (Right / Bottom) ——— -->
-    <section class="app-card__section" aria-label="Generated result">
-      <p class="section-label">Result</p>
+    <!-- ——— RESULT AREA ——— -->
+    <div class="mr-card__section" aria-label="Generated result">
+      <p class="mr-section-label">Result</p>
 
-      <div class="result-area" id="result-area">
+      <div class="mr-result" id="mr-result">
         <!-- Idle placeholder -->
-        <div class="result-area__placeholder" id="result-placeholder">
-          <svg class="result-area__placeholder-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <div class="mr-result__placeholder" id="mr-result-placeholder">
+          <svg class="mr-result__placeholder-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="4" y="4" width="48" height="48" rx="8"/>
             <path d="M20 28h16M28 20v16"/>
           </svg>
           <p>Your rendered image will appear here.</p>
         </div>
 
-        <!-- Loading spinner -->
-        <div class="result-area__loader" id="result-loader" aria-label="Generating image">
-          <div class="spinner" aria-hidden="true"></div>
-          <p class="result-area__loader-text">Rendering&hellip; this may take a moment</p>
+        <!-- Loader -->
+        <div class="mr-result__loader" id="mr-result-loader" aria-label="Generating image">
+          <div class="mr-spinner" aria-hidden="true"></div>
+          <p class="mr-result__loader-text">Rendering&hellip; this may take a moment</p>
         </div>
 
         <!-- Generated image -->
-        <div class="result-area__image-wrap" id="result-image-wrap">
-          <img src="" alt="AI generated result" class="result-area__image" id="result-image">
-          <div class="result-area__meta">
-            <span class="result-area__badge">&#x2714; Generated</span>
-            <span id="result-style-tag"></span>
-            <button type="button" class="result-area__download-btn" id="download-btn" aria-label="Download generated image">Download</button>
+        <div class="mr-result__image-wrap" id="mr-result-image-wrap">
+          <img src="" alt="AI generated result" class="mr-result__image" id="mr-result-image">
+          <div class="mr-result__meta">
+            <span class="mr-result__badge">&#x2714; Generated</span>
+            <span id="mr-result-style-tag"></span>
+            <button type="button" class="mr-result__download-btn" id="mr-download-btn" aria-label="Download generated image">Download</button>
           </div>
         </div>
 
-        <!-- Error message -->
-        <p class="result-area__error" id="result-error" role="alert" aria-live="polite"></p>
+        <!-- Error -->
+        <p class="mr-result__error" id="mr-result-error" role="alert" aria-live="polite"></p>
       </div>
-    </section>
-  </main>
+    </div>
 
-  <!-- =============================================
-       EMBEDDED JAVASCRIPT
-       ============================================= -->
-  <script>
-    (() => {
-      'use strict';
+  </div><!-- /.mr-card -->
+</div><!-- /.mrtl-render -->
 
-      // -----------------------------------------------
-      // DOM REFERENCES
-      // -----------------------------------------------
-      const uploadZone   = document.getElementById('upload-zone');
-      const fileInput    = document.getElementById('file-input');
-      const previewImg   = document.getElementById('preview-img');
-      const removeBtn    = document.getElementById('remove-btn');
-      const promptInput  = document.getElementById('prompt-input');
-      const renderBtn    = document.getElementById('render-btn');
-      const validationEl = document.getElementById('validation-msg');
+<!-- =============================================
+     JAVASCRIPT — runs inside a closure so nothing
+     leaks to the global scope
+     ============================================= -->
+<script>
+  (() => {
+    'use strict';
 
-      const resultPlaceholder = document.getElementById('result-placeholder');
-      const resultLoader      = document.getElementById('result-loader');
-      const resultImageWrap   = document.getElementById('result-image-wrap');
-      const resultImage       = document.getElementById('result-image');
-      const resultStyleTag    = document.getElementById('result-style-tag');
-      const resultError       = document.getElementById('result-error');
-      const downloadBtn       = document.getElementById('download-btn');
+    // -----------------------------------------------
+    // DOM REFERENCES  (all prefixed with "mr-" ids)
+    // -----------------------------------------------
+    const uploadZone   = document.getElementById('mr-upload-zone');
+    const fileInput    = document.getElementById('mr-file-input');
+    const previewImg   = document.getElementById('mr-preview-img');
+    const removeBtn    = document.getElementById('mr-remove-btn');
+    const promptInput  = document.getElementById('mr-prompt-input');
+    const renderBtn    = document.getElementById('mr-render-btn');
+    const validationEl = document.getElementById('mr-validation');
 
-      const styleRadios = /** @type {NodeListOf<HTMLInputElement>} */ (
-        document.querySelectorAll('.style-preset__radio')
-      );
+    const resultPlaceholder = document.getElementById('mr-result-placeholder');
+    const resultLoader      = document.getElementById('mr-result-loader');
+    const resultImageWrap   = document.getElementById('mr-result-image-wrap');
+    const resultImage       = document.getElementById('mr-result-image');
+    const resultStyleTag    = document.getElementById('mr-result-style-tag');
+    const resultError       = document.getElementById('mr-result-error');
+    const downloadBtn       = document.getElementById('mr-download-btn');
 
-      // -----------------------------------------------
-      // APPLICATION STATE
-      // -----------------------------------------------
-      let imageBase64  = '';   // Base64 data URI of the uploaded image
-      let imageMime    = '';   // MIME type of the uploaded image
-      let selectedStyle = '';  // Value of the selected render style
-      let isLoading    = false;
+    const styleRadios = document.querySelectorAll('.mr-style__radio');
 
-      // -----------------------------------------------
-      // FILE HANDLING
-      // -----------------------------------------------
+    // -----------------------------------------------
+    // APPLICATION STATE
+    // -----------------------------------------------
+    let imageBase64   = '';   // Base64 data URI of the uploaded image
+    let imageMime     = '';   // MIME type  (e.g. "image/png")
+    let selectedStyle = '';   // Currently selected render style value
+    let isLoading     = false;
 
-      /**
-       * Read a File object via FileReader and display its
-       * preview. Stores the base64 string in `imageBase64`.
-       * @param {File} file
-       */
-      const handleFile = (file) => {
-        // Basic validations
-        if (!file.type.startsWith('image/')) {
-          showValidation('Please upload a valid image file.');
-          return;
-        }
-        if (file.size > 10 * 1024 * 1024) {
-          showValidation('Image must be smaller than 10 MB.');
-          return;
-        }
+    // -----------------------------------------------
+    // FILE HANDLING  (FileReader API)
+    // -----------------------------------------------
 
-        const reader = new FileReader();
+    /** Read a File, show a preview, store the base64 string. */
+    const handleFile = (file) => {
+      if (!file.type.startsWith('image/')) {
+        showValidation('Please upload a valid image file.');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showValidation('Image must be smaller than 10 MB.');
+        return;
+      }
 
-        reader.addEventListener('load', () => {
-          imageBase64 = /** @type {string} */ (reader.result);
-          imageMime   = file.type;
+      const reader = new FileReader();
 
-          // Show the thumbnail preview
-          previewImg.src = imageBase64;
-          uploadZone.classList.add('upload-zone--has-image');
-          clearValidation();
-        });
-
-        reader.addEventListener('error', () => {
-          showValidation('Failed to read the file. Please try again.');
-        });
-
-        reader.readAsDataURL(file);
-      };
-
-      // Click / change on the native file input
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files?.[0];
-        if (file) handleFile(file);
-      });
-
-      // Drag-and-drop support
-      uploadZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadZone.classList.add('upload-zone--dragover');
-      });
-
-      uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('upload-zone--dragover');
-      });
-
-      uploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove('upload-zone--dragover');
-        const file = e.dataTransfer?.files[0];
-        if (file) handleFile(file);
-      });
-
-      // Remove / change image
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        imageBase64 = '';
-        imageMime   = '';
-        previewImg.src = '';
-        fileInput.value = '';
-        uploadZone.classList.remove('upload-zone--has-image');
-      });
-
-      // -----------------------------------------------
-      // STYLE PRESET SELECTION
-      // -----------------------------------------------
-      styleRadios.forEach((radio) => {
-        radio.addEventListener('change', () => {
-          selectedStyle = radio.value;
-          clearValidation();
-        });
-      });
-
-      // -----------------------------------------------
-      // VALIDATION HELPERS
-      // -----------------------------------------------
-      const showValidation = (msg) => { validationEl.textContent = msg; };
-      const clearValidation = ()   => { validationEl.textContent = ''; };
-
-      // -----------------------------------------------
-      // UI STATE MANAGEMENT
-      // -----------------------------------------------
-
-      /**
-       * Toggle the loading / disabled state of all inputs.
-       * @param {boolean} loading
-       */
-      const setLoading = (loading) => {
-        isLoading = loading;
-        renderBtn.disabled    = loading;
-        promptInput.disabled  = loading;
-        fileInput.disabled    = loading;
-        removeBtn.disabled    = loading;
-        styleRadios.forEach((r) => { r.disabled = loading; });
-
-        renderBtn.textContent = loading ? 'Rendering\u2026' : 'Render it!';
-
-        // Toggle result sub-sections
-        resultPlaceholder.style.display = 'none';
-        resultLoader.classList.toggle('result-area__loader--active', loading);
-        resultError.classList.remove('result-area__error--visible');
-
-        if (loading) {
-          resultImageWrap.classList.remove('result-area__image-wrap--visible');
-        }
-      };
-
-      // -----------------------------------------------
-      // SIMULATED DELAY (Replace with real API later)
-      // -----------------------------------------------
-
-      /**
-       * Returns a Promise that resolves after `ms` milliseconds.
-       * Used here to simulate network latency for the mock API.
-       * @param {number} ms
-       * @returns {Promise<void>}
-       */
-      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-      // -----------------------------------------------
-      // API INTEGRATION  (Mock structure)
-      //
-      // HOW TO SWAP IN YOUR REAL BACKEND:
-      //   1. Replace the placeholder URL below with your
-      //      actual API endpoint.
-      //   2. Adjust the JSON payload fields to match your
-      //      API's expected schema.
-      //   3. Remove the `delay()` call and the mock image
-      //      fallback — use the real response instead.
-      //   4. If your API returns the image as base64, set
-      //      `resultImage.src` to `data:<mime>;base64,<data>`.
-      //      If it returns a URL, set the src directly.
-      // -----------------------------------------------
-
-      /**
-       * Trigger the image generation request.
-       * This is an async function that:
-       *  - Validates required inputs
-       *  - Builds the payload
-       *  - Sends a fetch() to the API (currently mocked)
-       *  - Updates the UI with the result or error
-       */
-      const generateImage = async () => {
-        // --- Validation ---
-        if (!imageBase64) {
-          showValidation('Please upload a reference image first.');
-          return;
-        }
-        if (!selectedStyle) {
-          showValidation('Please select a render style.');
-          return;
-        }
-
+      reader.addEventListener('load', () => {
+        imageBase64 = reader.result;
+        imageMime   = file.type;
+        previewImg.src = imageBase64;
+        uploadZone.classList.add('mr-upload--has-image');
         clearValidation();
-        setLoading(true);
+      });
 
-        // --- Build the prompt string ---
-        // Combine the selected style with the user's optional text prompt.
-        const userPrompt = promptInput.value.trim();
-        const combinedPrompt = userPrompt
-          ? `${selectedStyle} style. ${userPrompt}`
-          : `${selectedStyle} style.`;
+      reader.addEventListener('error', () => {
+        showValidation('Failed to read the file. Please try again.');
+      });
 
-        // --- Build the request payload ---
-        // This payload structure mirrors common Image-to-Image API
-        // conventions. Adjust field names to match your backend.
-        const payload = {
-          // The full base64 data URI of the uploaded image.
-          // Some APIs expect the raw base64 string without the
-          // "data:image/...;base64," prefix — strip it if needed.
-          image_base64: imageBase64,
+      reader.readAsDataURL(file);
+    };
 
-          // The combined text prompt describing the desired output.
-          prompt: combinedPrompt,
+    // Click / change on native file input
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (file) handleFile(file);
+    });
 
-          // MIME type of the uploaded image (e.g. "image/png").
-          mime_type: imageMime,
-        };
+    // Drag-and-drop
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('mr-upload--dragover');
+    });
 
-        try {
-          // ====================================================
-          // FETCH REQUEST — REPLACE THIS BLOCK WITH YOUR REAL API
-          // ====================================================
-          //
-          // Below is the standard fetch() call. The endpoint URL
-          // is a placeholder. In production you would:
-          //   - Use your actual API URL
-          //   - Include auth headers (e.g. Authorization: Bearer ...)
-          //   - Parse the real response (image URL or base64)
-          //
-          // const response = await fetch(
-          //   'https://api.yourbackend.com/v1/generate-image',
-          //   {
-          //     method: 'POST',
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //       // 'Authorization': 'Bearer YOUR_API_KEY',
-          //     },
-          //     body: JSON.stringify(payload),
-          //   }
-          // );
-          //
-          // if (!response.ok) {
-          //   throw new Error(`API error: ${response.status}`);
-          // }
-          //
-          // const data = await response.json();
-          // const generatedImageUrl = data.image_url; // or build from base64
-          // ====================================================
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('mr-upload--dragover');
+    });
 
-          // --- MOCK: Simulate a 3-second network delay ---
-          await delay(3000);
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('mr-upload--dragover');
+      const file = e.dataTransfer && e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
 
-          // --- MOCK: Use a placeholder image to simulate success ---
-          // In production, replace this with the URL / base64 from
-          // your API response (see commented block above).
-          const seed = Math.floor(Math.random() * 10000);
-          const generatedImageUrl =
-            `https://picsum.photos/seed/${seed}/720/480`;
+    // Remove image
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      imageBase64 = '';
+      imageMime   = '';
+      previewImg.src = '';
+      fileInput.value = '';
+      uploadZone.classList.remove('mr-upload--has-image');
+    });
 
-          // --- Display the generated image ---
-          resultImage.src = generatedImageUrl;
-          resultImage.alt = `AI generated image in ${selectedStyle} style`;
-          resultStyleTag.textContent = selectedStyle;
-          resultImageWrap.classList.add('result-area__image-wrap--visible');
+    // -----------------------------------------------
+    // STYLE PRESET SELECTION
+    // -----------------------------------------------
+    styleRadios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        selectedStyle = radio.value;
+        clearValidation();
+      });
+    });
 
-        } catch (err) {
-          // --- Error handling ---
-          // Show a user-friendly message in the result area.
-          resultError.textContent =
-            `Something went wrong: ${err.message || 'Unknown error'}. Please try again.`;
-          resultError.classList.add('result-area__error--visible');
-        } finally {
-          // Always re-enable inputs regardless of success or failure.
-          setLoading(false);
-        }
+    // -----------------------------------------------
+    // VALIDATION HELPERS
+    // -----------------------------------------------
+    const showValidation = (msg) => { validationEl.textContent = msg; };
+    const clearValidation = ()   => { validationEl.textContent = ''; };
+
+    // -----------------------------------------------
+    // UI STATE  (loading toggle)
+    // -----------------------------------------------
+    const setLoading = (loading) => {
+      isLoading = loading;
+      renderBtn.disabled   = loading;
+      promptInput.disabled = loading;
+      fileInput.disabled   = loading;
+      removeBtn.disabled   = loading;
+      styleRadios.forEach((r) => { r.disabled = loading; });
+
+      renderBtn.textContent = loading ? 'Rendering\u2026' : 'Render it!';
+
+      resultPlaceholder.style.display = 'none';
+      resultLoader.classList.toggle('mr-result__loader--active', loading);
+      resultError.classList.remove('mr-result__error--visible');
+
+      if (loading) {
+        resultImageWrap.classList.remove('mr-result__image-wrap--visible');
+      }
+    };
+
+    // -----------------------------------------------
+    // HELPER — promise-wrapped setTimeout
+    // -----------------------------------------------
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // -----------------------------------------------
+    // API INTEGRATION  (Mock — heavily commented)
+    //
+    // HOW TO SWAP IN YOUR REAL BACKEND:
+    //   1. Replace the placeholder URL with your
+    //      actual API endpoint.
+    //   2. Adjust the JSON payload fields to match
+    //      your API's expected schema.
+    //   3. Remove the `delay()` call and the mock
+    //      image fallback — use the real response.
+    //   4. If your API returns base64, set
+    //      resultImage.src to
+    //        `data:<mime>;base64,<data>`
+    //      If it returns a URL, set the src directly.
+    // -----------------------------------------------
+    const generateImage = async () => {
+      // --- Input validation ---
+      if (!imageBase64) {
+        showValidation('Please upload a reference image first.');
+        return;
+      }
+      if (!selectedStyle) {
+        showValidation('Please select a render style.');
+        return;
+      }
+
+      clearValidation();
+      setLoading(true);
+
+      // --- Build the combined prompt ---
+      const userPrompt = promptInput.value.trim();
+      const combinedPrompt = userPrompt
+        ? `${selectedStyle} style. ${userPrompt}`
+        : `${selectedStyle} style.`;
+
+      // --- Build the JSON payload ---
+      // Mirrors common Image-to-Image API conventions.
+      const payload = {
+        // Full base64 data URI of the uploaded image.
+        // Some APIs want the raw string without the
+        // "data:image/...;base64," prefix — strip it
+        // with: imageBase64.split(',')[1]
+        image_base64: imageBase64,
+
+        // Combined text prompt (style + user input).
+        prompt: combinedPrompt,
+
+        // MIME type of the uploaded image.
+        mime_type: imageMime,
       };
 
-      // -----------------------------------------------
-      // RENDER BUTTON CLICK
-      // -----------------------------------------------
-      renderBtn.addEventListener('click', () => {
-        if (!isLoading) generateImage();
-      });
+      try {
+        // ================================================
+        // FETCH REQUEST — REPLACE WITH YOUR REAL API
+        // ================================================
+        //
+        // const response = await fetch(
+        //   'https://api.yourbackend.com/v1/generate-image',
+        //   {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       // 'Authorization': 'Bearer YOUR_API_KEY',
+        //     },
+        //     body: JSON.stringify(payload),
+        //   }
+        // );
+        //
+        // if (!response.ok) {
+        //   throw new Error(`API error: ${response.status}`);
+        // }
+        //
+        // const data = await response.json();
+        // const generatedImageUrl = data.image_url;
+        // ================================================
 
-      // -----------------------------------------------
-      // DOWNLOAD BUTTON
-      // -----------------------------------------------
-      downloadBtn.addEventListener('click', () => {
-        const src = resultImage.src;
-        if (!src) return;
+        // --- MOCK: 3-second simulated network delay ---
+        await delay(3000);
 
-        const link = document.createElement('a');
-        link.href = src;
-        link.download = `mrtl-render-${Date.now()}.png`;
-        link.rel = 'noopener';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      });
-    })();
-  </script>
-</body>
-</html>
+        // --- MOCK: placeholder image to simulate success ---
+        const seed = Math.floor(Math.random() * 10000);
+        const generatedImageUrl =
+          `https://picsum.photos/seed/${seed}/720/480`;
+
+        // --- Show the result ---
+        resultImage.src = generatedImageUrl;
+        resultImage.alt = `AI generated image in ${selectedStyle} style`;
+        resultStyleTag.textContent = selectedStyle;
+        resultImageWrap.classList.add('mr-result__image-wrap--visible');
+
+      } catch (err) {
+        resultError.textContent =
+          `Something went wrong: ${err.message || 'Unknown error'}. Please try again.`;
+        resultError.classList.add('mr-result__error--visible');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // -----------------------------------------------
+    // EVENT: Render button
+    // -----------------------------------------------
+    renderBtn.addEventListener('click', () => {
+      if (!isLoading) generateImage();
+    });
+
+    // -----------------------------------------------
+    // EVENT: Download button
+    // -----------------------------------------------
+    downloadBtn.addEventListener('click', () => {
+      const src = resultImage.src;
+      if (!src) return;
+      const link = document.createElement('a');
+      link.href = src;
+      link.download = `mrtl-render-${Date.now()}.png`;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    });
+  })();
+</script>
