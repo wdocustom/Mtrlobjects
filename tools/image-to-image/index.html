@@ -840,24 +840,63 @@
     };
 
     // -----------------------------------------------
-    // HELPER — promise-wrapped setTimeout
+    // CLOUDFLARE WORKER ENDPOINT
+    //
+    // After deploying your Worker, replace this URL
+    // with your real Worker URL. It will look like:
+    //   https://mrtl-image-proxy.<you>.workers.dev
     // -----------------------------------------------
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const WORKER_URL = 'https://mrtl-image-proxy.YOUR_SUBDOMAIN.workers.dev';
 
     // -----------------------------------------------
-    // API INTEGRATION  (Mock — heavily commented)
+    // STYLE-SPECIFIC PROMPT ENGINEERING
     //
-    // HOW TO SWAP IN YOUR REAL BACKEND:
-    //   1. Replace the placeholder URL with your
-    //      actual API endpoint.
-    //   2. Adjust the JSON payload fields to match
-    //      your API's expected schema.
-    //   3. Remove the `delay()` call and the mock
-    //      image fallback — use the real response.
-    //   4. If your API returns base64, set
-    //      resultImage.src to
-    //        `data:<mime>;base64,<data>`
-    //      If it returns a URL, set the src directly.
+    // Each style maps to a crafted base prompt that
+    // tells Stability AI exactly what visual treatment
+    // to apply. The user's optional text is appended.
+    // -----------------------------------------------
+    const STYLE_PROMPTS = {
+      'Photorealistic': [
+        'Transform this sketch into a photorealistic image.',
+        'Ultra-high detail, natural lighting, physically accurate materials,',
+        'subtle depth of field, shot on a professional DSLR camera,',
+        '8K resolution, true-to-life textures and reflections.',
+      ].join(' '),
+
+      'Concept Art': [
+        'Reimagine this sketch as professional concept art.',
+        'Painterly digital illustration style, dramatic cinematic lighting,',
+        'rich color palette, strong atmosphere and mood,',
+        'detailed environment design, AAA game studio quality.',
+      ].join(' '),
+
+      'Line Art': [
+        'Convert this sketch into refined, professional line art.',
+        'Clean precise linework, elegant contours, consistent stroke weight,',
+        'architectural illustration quality, high-contrast black ink on white,',
+        'technical drawing precision with artistic flair.',
+      ].join(' '),
+
+      '3D Render': [
+        'Render this sketch as a high-quality 3D visualization.',
+        'Smooth physically-based rendering, studio HDRI lighting,',
+        'soft ambient occlusion, subtle reflections on surfaces,',
+        'Octane Render quality, clean product visualization aesthetic.',
+      ].join(' '),
+    };
+
+    // How much the AI can deviate from the source image.
+    // 0.0 = nearly identical, 1.0 = fully reimagined.
+    const STYLE_STRENGTH = {
+      'Photorealistic': 0.55,
+      'Concept Art':    0.70,
+      'Line Art':       0.60,
+      '3D Render':      0.65,
+    };
+
+    // -----------------------------------------------
+    // API INTEGRATION — calls Cloudflare Worker proxy
+    //   Worker → Stability AI → Worker → this widget
     // -----------------------------------------------
     const generateImage = async () => {
       // --- Input validation ---
@@ -873,63 +912,39 @@
       clearValidation();
       setLoading(true);
 
-      // --- Build the combined prompt ---
+      // --- Build the prompt ---
+      const basePrompt = STYLE_PROMPTS[selectedStyle] || '';
       const userPrompt = promptInput.value.trim();
       const combinedPrompt = userPrompt
-        ? `${selectedStyle} style. ${userPrompt}`
-        : `${selectedStyle} style.`;
+        ? `${basePrompt} ${userPrompt}`
+        : basePrompt;
 
-      // --- Build the JSON payload ---
-      // Mirrors common Image-to-Image API conventions.
+      // --- Build the payload sent to the Worker ---
       const payload = {
-        // Full base64 data URI of the uploaded image.
-        // Some APIs want the raw string without the
-        // "data:image/...;base64," prefix — strip it
-        // with: imageBase64.split(',')[1]
         image_base64: imageBase64,
-
-        // Combined text prompt (style + user input).
         prompt: combinedPrompt,
-
-        // MIME type of the uploaded image.
-        mime_type: imageMime,
+        style: selectedStyle,
+        strength: STYLE_STRENGTH[selectedStyle] ?? 0.65,
       };
 
       try {
-        // ================================================
-        // FETCH REQUEST — REPLACE WITH YOUR REAL API
-        // ================================================
-        //
-        // const response = await fetch(
-        //   'https://api.yourbackend.com/v1/generate-image',
-        //   {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       // 'Authorization': 'Bearer YOUR_API_KEY',
-        //     },
-        //     body: JSON.stringify(payload),
-        //   }
-        // );
-        //
-        // if (!response.ok) {
-        //   throw new Error(`API error: ${response.status}`);
-        // }
-        //
-        // const data = await response.json();
-        // const generatedImageUrl = data.image_url;
-        // ================================================
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
 
-        // --- MOCK: 3-second simulated network delay ---
-        await delay(3000);
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(
+            errData.error || `Request failed (${response.status})`
+          );
+        }
 
-        // --- MOCK: placeholder image to simulate success ---
-        const seed = Math.floor(Math.random() * 10000);
-        const generatedImageUrl =
-          `https://picsum.photos/seed/${seed}/720/480`;
+        const data = await response.json();
 
-        // --- Show the result ---
-        resultImage.src = generatedImageUrl;
+        // The Worker returns { image: "data:image/png;base64,..." }
+        resultImage.src = data.image;
         resultImage.alt = `AI generated image in ${selectedStyle} style`;
         resultStyleTag.textContent = selectedStyle;
         resultImageWrap.classList.add('mr-result__image-wrap--visible');
